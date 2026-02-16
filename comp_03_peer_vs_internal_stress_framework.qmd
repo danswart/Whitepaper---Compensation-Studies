@@ -1,0 +1,104 @@
+---
+title: "Framework: Peer Comparisons vs Internal Labor Stress Indicators"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+# Namespacing-only: no library() calls required
+```
+
+## Problem statement
+
+Peer pay comparisons are often treated as if they are **market forces**. This framework separates:
+
+- **Peer comparisons** (external reference points)
+from
+- **Internal labor stress indicators** (your actual market signal)
+
+## Two different questions
+
+### Q1: “What do peers pay?”
+This is descriptive and externally referenced.
+
+### Q2: “Are we experiencing labor scarcity (recruitment/retention stress)?”
+This is diagnostic and internally evidenced.
+
+A compensation decision should not substitute Q1 for Q2.
+
+## The 2x2 matrix
+
+- Peer pay position: lower / higher
+- Internal stress: low / high
+
+```{r}
+#| label: peer-vs-stress-matrix
+#| results: asis
+
+matrix_df <- base::data.frame(
+  `Peer pay position` = c("Lower than peers", "Lower than peers", "Higher than peers", "Higher than peers"),
+  `Internal labor stress` = c("Low", "High", "Low", "High"),
+  `Interpretation` = c(
+    "No market evidence problem; peer gap alone is insufficient",
+    "Possible market stress; target role-specific adjustment or redesign",
+    "Overpay risk; verify capability needs and outcomes before sustaining",
+    "Pay alone is not solving the problem; investigate non-pay constraints"
+  ),
+  `Primary actions` = c(
+    "Hold; monitor; improve internal analytics",
+    "Diagnose drivers; adjust pay where needed; fix job conditions",
+    "Audit job scope and performance; ensure fiscal sustainability",
+    "Investigate supervision/workload/tools; pipeline; training; culture"
+  )
+)
+
+ft <- flextable::flextable(matrix_df)
+ft <- flextable::autofit(ft)
+ft
+```
+
+## Internal labor stress indicator set (recommended)
+
+At minimum, report (by department and job family):
+
+- Applicants per posting (and qualified applicants)
+- Offer acceptance rate (and first-offer rejection rate)
+- Time-to-fill
+- Voluntary turnover and destination (other city / private / other)
+- Early-tenure attrition (first 12–24 months)
+- Overtime pressure (where relevant) as a symptom (not proof) of staffing strain
+
+## Peer comparison as secondary evidence (proper role)
+
+Peer benchmarks can be used to:
+
+- Generate hypotheses (why are we different?)
+- Identify *possible* competition sets (who is recruiting from whom?)
+- Provide a sanity check on extreme outliers
+
+They should **not** be used as a sufficient condition for raises.
+
+## A defensible Council narrative (template)
+
+A defensible write-up should include:
+
+1. **Claim**: what labor problem exists (if any), stated narrowly.
+2. **Evidence**: internal stress indicators over time, by role.
+3. **Mechanism**: why pay is the binding constraint (vs non-pay factors).
+4. **Intervention**: targeted pay adjustment or job redesign, with scope and cost.
+5. **Evaluation**: what metrics will confirm improvement (applicants, acceptance, turnover).
+
+## Minimal reporting package (what staff should bring)
+
+- A one-page internal labor stress dashboard
+- A role-specific recruiting funnel summary
+- Exit destination analysis for voluntary departures
+- Peer data appendix (clearly labeled as secondary)

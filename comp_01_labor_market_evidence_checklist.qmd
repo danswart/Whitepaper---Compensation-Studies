@@ -1,0 +1,105 @@
+---
+title: "Municipal Compensation Decisions: Labor Market Evidence Checklist"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+# Namespacing-only: no library() calls required
+```
+
+## Purpose
+
+This checklist is designed to prevent **peer benchmarking** from substituting for **local labor-market evidence**. The goal is to ensure City Council decisions are based on **observable recruitment/retention conditions**, not external comparisons alone.
+
+## Checklist structure
+
+The checklist is grouped into four evidence areas:
+
+1. **Recruiting pipeline health**
+2. **Offer/accept dynamics**
+3. **Retention and exits**
+4. **Capability and job design (what you’re actually buying)**
+
+## A. Recruiting pipeline health
+
+Use these items for each position family (e.g., City Manager, Finance, Fire, Police, Utilities, IT, Planning).
+
+- Do we have postings with **near-zero applicants**?
+- Do we have postings with **near-zero *qualified* applicants**?
+- Are time-to-fill and re-post rates increasing?
+- Are candidate pools shrinking in specific roles, shifts, certifications, or locations?
+
+## B. Offer/accept dynamics
+
+- What % of **first offers are rejected**?
+- What are the top stated reasons (pay, schedule, location, culture, benefits, job scope)?
+- Are counteroffers increasing?
+- Are we losing finalists to specific employers?
+
+## C. Retention and exits
+
+- What is the **voluntary turnover rate** by department and job family?
+- What % of separations are retirement vs voluntary vs involuntary?
+- Where do voluntary exits go (other cities vs private vs other public sector)?
+- Are exits concentrated in key roles, supervisors, or shifts?
+
+## D. Capability and job design
+
+- What capabilities are required for success (certifications, experience, judgment, leadership, specialized skills)?
+- Are we compensating for *scarce* capabilities or simply matching peers?
+- Are job descriptions aligned with actual work scope?
+- Are we using pay to solve a non-pay problem (culture, workload, tools, supervision)?
+
+## Data capture template (flextable)
+
+Below is a suggested **single-page evidence capture** table that can be filled per job family or per critical role.
+
+```{r}
+#| label: evidence-checklist-table
+#| results: asis
+
+checklist_df <- base::data.frame(
+  `Evidence Area` = c(
+    "Recruiting pipeline",
+    "Offer/accept",
+    "Retention/exits",
+    "Capability/job design",
+    "Conclusion"
+  ),
+  `Key measures to report (by job family)` = c(
+    "Applicants per posting; qualified applicants per posting; time-to-fill; repost rate; sourcing mix",
+    "Offer rate; acceptance rate; first-offer rejection %; counteroffer %; stated rejection reasons",
+    "Voluntary turnover; exit destination mix; early-tenure attrition; hot-spot roles/shifts",
+    "Required capabilities; certification/experience constraints; job scope changes; supervisory span",
+    "State whether evidence indicates labor scarcity (Y/N) and which levers are justified"
+  ),
+  `Minimum acceptable evidence` = c(
+    "≥ 12 months trend + current YTD; breakout by role/department",
+    "≥ last 50 offers or last 12 months (whichever larger); coded reasons",
+    "≥ 24 months trend; exit destinations for voluntary exits",
+    "Current job descriptions + scope variance notes; training/credential requirements",
+    "Written summary tied to evidence; identify gaps + next data to collect"
+  ),
+  `Notes / links to exhibits` = c("", "", "", "", "")
+)
+
+ft <- flextable::flextable(checklist_df)
+ft <- flextable::autofit(ft)
+ft
+```
+
+## Decision rule (non-automatic)
+
+This checklist is **not** a mechanical rule. It is an evidence gate:
+
+- If **local labor-market evidence** shows no stress, then “peer pay is higher” is not sufficient.
+- If evidence shows stress, pay may be one lever—but the decision should specify *which roles* and *which market mechanism* is being addressed.

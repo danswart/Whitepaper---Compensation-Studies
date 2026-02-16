@@ -1,0 +1,97 @@
+---
+title: "Decision-Quality Rubric for Municipal Compensation Policy"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+# Namespacing-only: no library() calls required
+```
+
+## Purpose
+
+This rubric evaluates the **quality of the decision process**, not merely the decision outcome. It is designed to prevent “peer studies” from replacing local evidence about:
+
+- effectiveness
+- developed capability
+- actual labor-market constraints
+
+## Scoring (0–4)
+
+Each criterion is scored 0–4:
+
+- 0 = absent / not addressed
+- 1 = mentioned but unsupported
+- 2 = partial evidence
+- 3 = strong evidence and reasoning
+- 4 = strong evidence, reasoning, and pre-committed evaluation plan
+
+## Rubric table (flextable)
+
+```{r}
+#| label: decision-quality-rubric
+#| results: asis
+
+rubric_df <- base::data.frame(
+  `Criterion` = c(
+    "1. Problem definition",
+    "2. Internal labor evidence",
+    "3. Capability requirements",
+    "4. Effectiveness / outcomes",
+    "5. Peer comparison used appropriately",
+    "6. Options considered (non-pay + pay)",
+    "7. Fiscal sustainability",
+    "8. Implementation details",
+    "9. Evaluation plan",
+    "10. Transparency & documentation"
+  ),
+  `What good looks like` = c(
+    "Specific labor problem stated (which roles, what symptom, magnitude, timeframe)",
+    "Applicant volume/quality, acceptance, time-to-fill, turnover, exit destinations by role",
+    "Clear statement of required capabilities; scarcity indicators; job scope validated",
+    "Performance evidence tied to role responsibilities (service levels, audit outcomes, risk control)",
+    "Peer data is labeled as secondary; peer set selection rules disclosed; definitions aligned",
+    "At least 3 alternatives: process/job redesign, pipeline/training, targeted pay adjustment",
+    "Total compensation impact, compounding effects, and long-term obligations disclosed",
+    "Who, when, which roles, pay bands, steps, and governance controls defined",
+    "Pre-committed metrics + timeframe; what would count as success/failure",
+    "All exhibits, assumptions, and definitions are accessible; limitations stated"
+  ),
+  `Score (0-4)` = base::rep("", 10),
+  `Evidence / notes` = base::rep("", 10)
+)
+
+ft <- flextable::flextable(rubric_df)
+ft <- flextable::autofit(ft)
+ft
+```
+
+## How to use this rubric
+
+1. Score each criterion independently.
+2. Identify the **lowest-scoring criteria** (they usually reveal missing evidence).
+3. Require staff to close the gaps *before* adopting a compensation change.
+4. Attach the completed rubric to the agenda item as part of the public record.
+
+## Red flags (process failures)
+
+- “Peers pay more” presented as the primary justification without internal labor stress evidence.
+- No data on offer acceptance, applicant quality, or exit destinations.
+- Pay adjustments applied broadly without role-specific diagnosis.
+- No plan to evaluate whether the change improved recruiting/retention/capability.
+
+## What this rubric is not
+
+- Not a claim that pay never matters.
+- Not a substitute for management judgment.
+- Not a political argument.
+
+It is a tool for **decision integrity**: evidence, reasoning, and accountability.

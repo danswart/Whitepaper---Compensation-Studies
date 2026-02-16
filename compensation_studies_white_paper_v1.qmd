@@ -1,0 +1,1045 @@
+---
+title: "Compensation and Classification Studies Are ALWAYS a Bad Idea"
+subtitle: "Why Looking Outside Your Organization to Set Compensation Policy Lets Outsiders Run Your City"
+authors: 
+  - name: "Dan Swart, CPA (ret)"
+date: today
+date-format: long
+# bibliography: manual-refs.bib
+format:
+  html:
+    resources:
+      - reference-backlinks.js
+    include-after-body:    
+      - text: |
+          # <script type="text/javascript" src="reference-backlinks.js"></script>
+    default: true         
+    code-copy: true
+    code-link: true        # This adds individual buttons
+    code-fold: true        # Hide code by default, show on click
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-block-bg: "#FAEBD7"
+    code-block-border-left: "#31BAE9"
+    embed-resources: true     # Set to 'false' for drafts. Override if you're NOT sharing output
+    include-in-header:
+      - text: 
+          <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Cabin&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Schoolbell&display=swap" rel="stylesheet">
+      - header.html
+    css:
+      - swart.css
+      - tachyons.min.css
+      - r-colors.css
+    fontsize: 18pt
+    lightbox: true
+    page-layout: full
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    html-math-method: katex
+    df-print: paged
+    toc: true
+    toc-float: true
+    citeproc: true
+    link-citations: true
+    linestretch: 1.0
+    
+    
+    
+  typst:
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+    fontsize: 16pt
+    mainfont: "Cabin"
+  
+
+    
+  revealjs:
+    slide-number: true
+    transition: fade
+    code-overflow: wrap
+    center: true
+    smaller: true
+    scrollable: true
+    chalkboard: true
+    multiplex: false
+    theme: solarized
+    reference-location: margin
+    logo: img/red-cross-640-435.png
+    footer: "Footer text"
+    code-block-height: 650px
+
+
+
+  # docx:
+  #   highlight-style: github
+  #   fig_caption: true
+
+
+
+editor: source
+
+quarto:
+  render:
+    cache-refresh: true
+
+
+# for .qmd filesd
+execute:
+  echo: true
+  message: false
+  warning: false
+  eval: true
+  fig-width: 13
+  fig-height: 8
+
+
+# for .rmd files
+knitr:
+  opts_chunk:
+    echo: true
+    error: false
+    warning: false
+    message: false
+    cache: false
+
+
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+
+
+# install.packages(c("mapview", "survey", "srvyr", "arcgislayers"))
+
+# census_api_key("95496766c51541ee6f402c1e1a8658581285b759", install = TRUE, overwrite = TRUE)
+
+
+# # load libraries - NOT NEEDED
+
+
+# Force dplyr's select to take precedence
+select <- dplyr::select
+filter <- dplyr::filter
+
+# Options
+options(scipen = 999)
+options(qic.clshade = T) # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.linecol = 'black') # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.signalcol = "firebrick") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.targetcol = "purple") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(DT.options = list(dom = 'pBlfrti')) # Add buttons, filtering, and top (t) pagination controls
+options(shiny.maxRequestSize = 50 * 1024^2) # Set upload maximum to 50 MB
+options(tigris_use_cache = TRUE)
+options(device = "RStudioGD") 
+
+
+# Flextable defaults:
+flextable::set_flextable_defaults(
+  font.size = 14, 
+  font.family = "Cabin",
+  font.color = "black",
+  table.layout = "fixed",
+  border.color = "darkgray",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4,
+  line_spacing = 1.3,
+  digits = 2,
+  decimal.mark = ".",
+  big.mark = " ",
+  na_str = "<na>",
+  post_process_html = identity,
+  post_process_docx = identity
+)
+
+
+
+# Flextable built-in themes:
+  # flextable::theme_alafoli()	|>  # BLAH
+  # flextable::theme_apa()  # THIS IS NICE
+  # flextable::theme_booktabs() |>  # NICE, MORE COMPACT
+  # flextable::theme_box() |>   # OK, INCLUDES CELL BORDERS
+  # flextable::theme_tron() |>  # 'DARK MODE' BLUE TEXT
+  # flextable::theme_tron_legacy() |>   # 'DARK MODE' YELLOW TEXT
+  # flextable::theme_vader() |>    # 'DARK MODE' WHITE TEXT
+  # flextable::theme_vanilla() |>   # NOT SPECIAL
+  # flextable::theme_zebra()	|>
+  #
+
+
+# Set global theme for consistent plots
+ggplot2::theme_set(
+  ggplot2::theme_minimal(base_size = 20) +
+    ggplot2::theme(
+      plot.title.position = "plot",
+      plot.title = ggtext::element_textbox_simple(
+        family = "Cabin",
+        face = "bold",
+        color = "darkgreen",
+        size = 16,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 0.0, 5.5),
+        margin = ggplot2::margin(0, 0, 5.5, 0)
+      ),
+      plot.subtitle = ggtext::element_textbox_simple(
+        family = "Cabin",
+        color = "darkgreen",
+        face = "bold",
+        size = 14,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 5.5, 5.5),
+        margin = ggplot2::margin(0.0, 0, 5.5, 0)
+      ),
+      plot.caption = ggtext::element_markdown(
+        family = "Cabin",
+        size = 14,
+        hjust = 1,
+        color = "darkblue",
+        face = "italic",
+        fill = "yellow",
+        lineheight = 1.0
+      ),
+      axis.text.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 14),
+        # ggplot2::element_blank(),
+      axis.text.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12),
+        # ggplot2::element_blank(),
+      strip.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black",
+        size = 12,
+        face = "italic",
+        margin = ggplot2::margin(2, 0, 0.5, 0, "lines")
+      ),
+      axis.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black"),
+      panel.background = ggplot2::element_rect(fill = "white", color = NA),
+      plot.background = ggplot2::element_rect(fill = "white", color = NA),
+      legend.position = "none",
+      panel.spacing.x = grid::unit(1.5, "cm"),
+      panel.spacing.y = grid::unit(1.5, "cm"),
+      plot.margin = ggplot2::margin(20, 20, 20, 20, "pt")
+    )
+)
+
+
+
+  
+# Set seed for reproducibility
+base::set.seed(123)
+
+```
+
+
+# Executive Summary
+
+Every year, cities across America commit tens of billions of taxpayer dollars to employee compensation increases based on a single document: a Compensation and Classification Study. These studies arrive with the imprimatur of professional consultants, dense tables of numbers, and a simple, compelling conclusion---your employees are underpaid compared to other cities, and you need to spend more money to fix it.
+
+These studies, as currently conducted and used, are always a bad idea. Not because employees don't deserve fair pay. Not because
+compensation doesn't matter. But because the studies themselves are structurally
+incapable of answering the question they claim to answer, and the process by which
+cities use them systematically bypasses the fiscal discipline that governing bodies
+are elected to exercise.
+
+The core problem is not technical---it is cultural. A slogan has replaced evidence.
+The phrase *"We need to be competitive with other municipalities to attract and
+retain the best talent"* has become an unchallengeable article of faith in municipal
+governance. It is repeated by city managers, HR directors, and council members as if
+it were self-evidently true and required no supporting evidence. But it is an
+empirical claim, and empirical claims require empirical evidence. When was the last
+time your council asked: *"Show me the data that proves we are losing valuable
+employees specifically because of compensation, and show me how much that loss is
+actually costing us?"*
+
+If the answer is "never," this paper is for you.
+
+This paper presents a set of governing principles designed to help elected officials
+make compensation decisions based on evidence rather than slogans, on their own
+city's data rather than a consultant's comparisons, and on fiscal sustainability
+rather than the fear of falling behind. These principles do not require statistical
+training. They require only the willingness to ask uncomfortable questions before
+signing uncomfortable checks.
+
+
+# Part I: The Slogan That Replaced Evidence
+
+## How a Catchphrase Became Policy
+
+Across the country, municipal compensation policy is driven by a single rhetorical
+claim: *"We must be competitive to attract and retain talent."* This statement is
+treated as a given---a foundational truth that "everybody knows" and nobody
+questions. It has the same status in city budget discussions that "location,
+location, location" has in real estate: a slogan that sounds like wisdom but
+actually says nothing specific enough to act on.
+
+Consider what this slogan actually claims:
+
+- It asserts that your city is in **direct competition** with other nearby
+municipalities for the same pool of employees.
+- It asserts that **compensation** (specifically, salary) is the primary factor
+determining whether you win or lose that competition.
+- It asserts that failing to match competitors' pay levels will result in the
+**loss of significant, important personnel**.
+- And it implies that the **cost of those losses** exceeds the cost of the pay
+increases needed to prevent them.
+
+Every one of these assertions is testable. Every one of them has conditions under
+which it is true and conditions under which it is false. And yet, in city after
+city, not a single one of them is tested before millions of dollars are committed.
+The slogan is accepted as sufficient justification.
+
+This is how slogans replace governance. Not through malice, but through
+convenience. The slogan gives everyone in the room permission to stop thinking. The
+city manager gets to advocate for staff. HR gets to point to a professional study.
+The consultant gets paid. And the council gets to feel responsible---after all, they
+commissioned a study! The only thing missing from this process is evidence that the
+problem exists, evidence that the proposed solution addresses it, and a way to know
+afterward whether it worked.
+
+
+## What Would Evidence Actually Look Like?
+
+If *"we are losing people to competitors because of pay"* were treated as a
+hypothesis rather than a given, a responsible governing body would demand answers to
+concrete questions before approving any expenditure.
+
+**What is your actual turnover rate, by department, for each of the last five to
+ten years?** Not one number for the whole organization---segmented data that shows
+where the churn actually is. If turnover is 5% in administration and 30% in public
+works, you don't have a compensation problem. You have a *specific labor market
+competitiveness problem* in one or two job families. A blanket move to the 50th
+percentile is a sledgehammer when you need a scalpel.
+
+**Of the employees who left voluntarily, what did exit interviews reveal about
+their reasons?** If sixty percent cite management quality, scheduling, or growth
+opportunities rather than pay, you are about to spend millions on the wrong
+solution. If your city does not conduct exit interviews---or does not aggregate the
+results into usable data---that itself is a governance finding more important than
+any compensation study.
+
+**What is the tenure profile of departing employees?** Losing someone at eighteen
+months is a fundamentally different problem than losing someone at eight years.
+Early departures point to hiring, onboarding, and expectation-setting
+failures---not compensation. Throwing money at an onboarding problem will not fix
+it.
+
+**What are your vacancy rates and time-to-fill by position?** If a critical
+position sat vacant for nine months, that is concrete evidence that compensation
+may be non-competitive for *that specific role*. If the same position fills in
+three weeks every time it opens, the midpoint comparison in the study is an
+academic exercise with no operational consequence.
+
+**Have you examined whether employees who leave eventually return?** If former
+employees are "boomeranging" back to your city, that is powerful evidence that
+your workplace has pull factors---work environment, community quality, commute,
+benefits---that salary comparisons completely ignore.
+
+::: {.callout-important}
+## The Critical Question
+
+If you cannot answer these questions with data, you do not have a compensation
+problem. You have an information problem. Solve the information problem before
+you spend the money.
+:::
+
+
+## The Ratchet Effect: Why "Competitive" Is a Race with No Finish Line
+
+There is a deeper structural problem with the "be competitive" philosophy that
+most councils never consider. When every city in a region adopts a policy of
+targeting the 50th percentile of its peers, you get a ratchet effect: each round
+of studies pushes everyone's pay upward because each city is chasing the moving
+median of cities that are themselves chasing the median.
+
+Think of it this way. Your city commissions a study and discovers it is "below
+market." It raises pay to the 50th percentile. Two years later, your neighbor
+commissions its own study, and *your new, higher salaries are now part of their
+market data*. They raise pay to match. Then the next city over does the same. By
+the time your next study cycle comes around, the "market" has moved up---because
+you and everyone else moved it up. You are now "below market" again, through no
+fault of your own.
+
+This is not a theoretical concern. It is the predictable, inevitable consequence
+of a regional compensation philosophy in which every city defines "fair" as
+"whatever everyone else is paying." No city ever commissions a study that
+concludes "you are overpaying." The methodology does not permit it. The incentives
+do not encourage it. And the consultants who depend on repeat business have no
+reason to deliver it.
+
+The ratchet only turns in one direction.
+
+
+# Part II: Why the Studies Themselves Are Structurally Flawed
+
+Even setting aside the absence of evidence for the underlying problem, the studies
+themselves have fundamental structural problems that make their conclusions
+unreliable. These are not occasional flaws in poorly executed studies. They are
+inherent features of the methodology.
+
+## The Comparator Group Determines the Conclusion
+
+The single most important decision in any compensation study is the selection of
+"comparable" cities. This decision effectively predetermines the outcome. If you
+want a study that says "your employees are underpaid," include larger cities with
+bigger budgets, higher costs of living, and more complex operations. If you want a
+study that says "you're about right," limit comparisons to cities of genuinely
+similar size and scope.
+
+In practice, comparator groups routinely include cities that are not comparable in
+any meaningful operational sense. A city of 40,000 residents may find itself
+benchmarked against a city of nearly a million, or one of 1.5 million. A Director
+of Finance managing a $90 million budget gets compared to one managing a $3
+billion budget with hundreds of staff. A Police Chief overseeing a few dozen
+officers gets compared to one commanding thousands. The positions share a title,
+but they share almost nothing else. Including those larger cities in the average
+systematically pulls the "market midpoint" upward.
+
+Who selected the comparator cities, and why? Were they chosen by the consultant?
+By city management? By HR? By council direction? This matters enormously, because
+the entity that selects the comparators effectively predetermines the finding. And
+yet most councils never ask.
+
+::: {.callout-important}
+## A Simple Test
+
+Ask your staff this question: *"If we removed the two or three largest cities
+from the comparator group, how much would the recommended pay adjustment
+change?"* If no one can answer that question, the study lacks the most basic
+form of quality assurance. If the answer is "significantly," then the study's
+conclusions rest on the assumption that your city of 40,000 should pay like a
+city of a million---and that assumption should be debated openly, not buried in
+a methodology section.
+:::
+
+
+## The Methodology Is Opaque to the Point of Being Unauditable
+
+A typical compensation study presents a single "Survey Midpoint" for each
+position---an already-computed average across all comparator cities. The
+underlying city-by-city data are not disclosed. This means it is impossible to
+determine which cities contributed data to which positions, how averages were
+computed, whether outliers were trimmed, or how private-sector benchmarks were
+blended with public-sector data.
+
+Consider what this means in practice. You are presented with a number---say, the
+"market midpoint" for a Building Inspector is $62,000---and told your city pays
+$52,000, so you are 16% below market. But you cannot see the individual data
+points that produced $62,000. Maybe that number is the average of eleven cities
+ranging from $48,000 to $95,000. Maybe one large city at $95,000 is pulling the
+average up by $5,000. Maybe only six of the twelve comparators even have a
+Building Inspector position. You have no way to know.
+
+In any other context, a governing body would not accept a recommendation to spend
+millions of dollars based on data it cannot examine. A council member who proposed
+a capital project and refused to show the cost estimates would be laughed out of
+the room. But compensation studies receive a courtesy that capital projects do
+not: they are treated as authoritative precisely *because* they are opaque.
+
+The study, as typically delivered, does not contain the underlying data needed for
+a defensible recalculation by anyone outside the consulting firm. This is the
+opposite of transparency. It is the opposite of reproducibility. And it should be
+disqualifying.
+
+
+## "Professional Judgment" as a Black Box
+
+Compensation studies routinely include language stating that the consultant used
+"professional judgment" to adjust results or to place positions that could not be
+directly benchmarked. This is a significant disclosure buried in bland language.
+
+What it means in practice is that some positions were not benchmarked against
+actual data at all---they were slotted by the consultant's subjective assessment
+of where they "should" fall relative to benchmarked positions. And even for
+positions that were directly benchmarked, the consultant reserved the right to
+override the data if they judged the result "illogical."
+
+There is nothing inherently wrong with professional judgment in compensation
+work. But when the study provides zero documentation of *where* judgment was
+applied, *what the data said before adjustment*, and *what criteria guided the
+overrides*, portions of the recommendation become unverifiable. You are being
+asked to spend public money based partly on one consultant's opinion, presented
+as data.
+
+A governing body cannot evaluate what it cannot see. Any study that invokes
+"professional judgment" without documenting where, why, and how much it changed
+the results has substituted the consultant's instinct for your city's
+deliberation.
+
+
+## The Benefits Offset That Is Never Calculated
+
+Compensation studies almost universally compare salaries in isolation from
+benefits. This is a methodological choice that maximizes the apparent gap between
+your city and the "market."
+
+Many cities are quite competitive---or ahead of the market---on benefits. They
+may pay a higher share of family health insurance premiums, offer better
+retirement matching, or provide more generous paid time off. These are real
+compensation with real dollar values. If your city pays 77% of family health
+insurance premiums and the market average is 68%, that difference of 9 percentage
+points on a $22,000 annual premium is roughly $2,000 per employee per year in
+additional compensation value. Across 200 employees with family coverage, that is
+$400,000 in unrecognized compensation advantage that the salary-only comparison
+ignores.
+
+A total compensation comparison---salary plus benefits, monetized and
+combined---would reduce the apparent gap for every position. But total
+compensation comparisons are harder to compute, produce less dramatic findings,
+and generate smaller recommended expenditures. It is not difficult to understand
+why they are rarely performed.
+
+When your compensation study notes that benefits are "competitive" or "slightly
+ahead of market" and then moves on to recommend salary increases anyway, ask:
+*Why weren't those benefit advantages converted to dollar values and offset
+against the salary gap?*
+
+
+## The Cost-of-Living Blindspot
+
+Compensation studies typically make no adjustment for differences in cost of
+living between comparator cities. A dollar of salary in a suburban city of 40,000
+buys more housing, more groceries, and more quality of life than a dollar of
+salary in a large metro center. An employee earning $65,000 in your city may have
+the same purchasing power as one earning $78,000 in a larger, more expensive
+comparator. But the study treats those as a $13,000 gap that your city needs to
+close.
+
+Your city's lower cost of living is itself a recruitment advantage---one that the
+study ignores because it is inconvenient to the methodology.
+
+
+# Part III: The Two-Point Comparison Trap
+
+Even after the money is spent, the problems continue. Cities that implement
+compensation adjustments based on these studies almost never evaluate whether the
+expenditure worked. And when they do attempt evaluation, they fall into the most
+common analytical error in organizational management: the two-point comparison.
+
+## Why "Before and After" Tells You Almost Nothing
+
+Here is how the story typically goes. The city raises compensation by $2 million.
+A year later, turnover drops from 15% to 12%. Management declares victory: the
+pay increase worked.
+
+But what was turnover the three years *before* the increase? If it was 17%, 12%,
+15%, and then 12%---the current number is nothing new. It has been 12% before
+without any intervention at all. The "improvement" is indistinguishable from the
+normal ups and downs the city has always experienced.
+
+Alternatively, turnover rises from 15% to 17% after the increase. Management
+says, "Imagine how bad it would have been without the increase." This explanation
+sounds reasonable. It is also completely unfalsifiable. And unfalsifiable claims
+are not evidence---they are stories.
+
+Both scenarios share the same fundamental problem: you cannot draw conclusions
+from two data points. You need history. You need context. You need to know what
+the normal range of fluctuation looks like before you can determine whether a
+change after an intervention is meaningful or just routine variation. Without that
+context, you are not analyzing---you are narrating. And human beings have a nearly
+infinite capacity to construct plausible narratives to explain any two numbers.
+
+::: {.callout-important}
+## The Two-Point Comparison Rule
+
+Never evaluate a policy based on one "before" number and one "after" number.
+Before any expenditure is declared successful or unsuccessful, require staff to
+present at least five years of historical data for the metric in question. Not
+a chart. Not a statistical analysis. Just the numbers, year by year. Let the
+context speak for itself.
+
+**Frame it this way: "We don't make million-dollar decisions based on two data
+points."**
+:::
+
+
+## The Missing Success Criteria
+
+The deepest problem with compensation study implementation is this: the money is
+spent with no pre-specified definition of success.
+
+If the compensation study had been required to specify---*before
+implementation*---"We expect voluntary turnover to decrease from X% to Y% within
+24 months, and average time-to-fill for critical positions to decrease from A
+days to B days"---then the governing body would have a falsifiable claim to
+evaluate. They would know, two years later, whether the expenditure achieved its
+stated purpose.
+
+Without pre-specified success criteria, the expenditure can never be evaluated as
+anything other than "we did a thing." That is not governance. That is hope
+dressed in a spreadsheet.
+
+
+# Part IV: The Real Source of Organizational Knowledge
+
+## Everything You Need to Know Is Inside Your Organization
+
+There is a management philosophy---articulated most powerfully by W. Edwards
+Deming---that holds a simple but radical proposition: everything an organization
+needs to know to improve itself is already inside the organization. The data is
+there. The knowledge is there. The people who understand the work, the problems,
+and the opportunities are already on your payroll.
+
+Looking outside the organization to set compensation policy is, in effect,
+letting outsiders run your city. The consultants don't intend this. Your staff
+doesn't intend this. But it is the practical result. When you adopt a policy of
+"matching the 50th percentile of comparable cities," you have delegated your
+compensation decisions to whatever happens to be going on in a dozen other
+cities---cities with different budgets, different needs, different populations,
+and different problems. Their decisions now drive your spending. Their mistakes
+become your mistakes.
+
+Your city has its own workforce. It has its own turnover patterns. It has its own
+vacancy data. It has its own exit interviews (or should). It has its own budget
+constraints and revenue trajectory. All of this information is specific to your
+city, reflects your city's actual conditions, and is available to you without
+hiring a consultant. The question is whether anyone is looking at it.
+
+
+## The Information You Already Have (but Probably Aren't Using)
+
+Most cities already possess---or could easily generate---the data needed to make
+informed compensation decisions without a comparative study. Consider what is
+sitting in your existing systems right now:
+
+**Your payroll system** contains complete compensation history for every
+employee. You know what you pay, who you pay it to, and how it has changed over
+time. You can calculate your own internal equity, identify compression problems,
+and track the cost trajectory of your compensation decisions.
+
+**Your HR records** contain hire dates, separation dates, and (in many cases)
+separation reasons. From these, you can compute turnover rates by department, by
+tenure band, and over time. You can identify whether turnover is concentrated or
+diffuse, chronic or episodic.
+
+**Your recruitment records** contain application counts, time-to-fill, and offer
+acceptance rates. These are the *operational* indicators of whether compensation
+is adequate. If you post a position and receive 40 qualified applicants, your
+compensation for that position is working regardless of what a consultant's
+spreadsheet says.
+
+**Your budget documents** contain the revenue trajectory that determines what you
+can actually sustain. A compensation adjustment that is affordable this year but
+creates a permanent structural obligation requires permanent structural revenue.
+If your revenue is growing at 4% and your compensation obligations are growing at
+12%, the arithmetic has an expiration date---and it is not far away.
+
+None of this data requires a consultant. None of it requires comparing yourself
+to other cities. All of it is more relevant to your decisions than a survey of
+what Austin or San Antonio or Round Rock happens to pay.
+
+
+# Part V: Principles for Evidence-Based Compensation Governance
+
+The following principles are designed for elected officials and governing board
+members who may have no background in statistics, finance, or human resources
+management. They require no technical training. They are rules of thumb---decision
+guardrails that produce approximately correct behavior by preventing the most
+common and most expensive errors.
+
+These principles are not anti-employee. They are pro-evidence, pro-transparency,
+and pro-taxpayer. An employee who is genuinely underpaid will be better served by
+a governing body that makes targeted, evidence-based adjustments than by one that
+periodically throws money at the entire pay plan based on a consultant's survey.
+
+## The Principles
+
+### Principle 1: Look Inward First
+
+*Everything your city needs to know about its compensation is inside your city.*
+
+Before commissioning any external study, exhaust your internal data. Compute your
+own turnover rates by department and by year. Review your own vacancy and
+time-to-fill data. Read your own exit interviews. Analyze your own budget
+trajectory. If you have a compensation problem, your data will show it---and it
+will show you *where* the problem is, which a comparative study cannot do.
+
+Looking outside the organization to set policy is letting outsiders run your
+city. Other cities' pay scales reflect their budgets, their costs of living,
+their labor markets, and their political choices. None of those are yours.
+
+> **The question to ask:** *"What does our own data tell us about where we have
+> retention or recruitment difficulties, and have we looked?"*
+
+
+### Principle 2: Demand Evidence, Not Slogans
+
+*"We need to be competitive" is a hypothesis, not a fact. Treat it like one.*
+
+When staff or consultants assert that your city is losing employees due to
+compensation, ask for the evidence. Not anecdotes. Not impressions. Data. How
+many employees left? Which departments? What did they say in exit interviews?
+Where did they go? Was the departure rate outside the range of what your city has
+historically experienced?
+
+If the answer to these questions is "we don't have that data," then the
+appropriate response is not to commission a compensation study. It is to start
+collecting the data.
+
+A slogan is not a business case. A slogan that "everybody agrees with" is
+especially dangerous, because it creates the illusion of consensus where there is
+actually just the absence of scrutiny.
+
+> **The question to ask:** *"What specific, verifiable evidence supports the
+> claim that compensation is the cause of our recruitment or retention
+> difficulties?"*
+
+
+### Principle 3: If You Cannot Reproduce It, You Cannot Trust It
+
+*Any study recommending the expenditure of public funds must be transparent
+enough that an independent party can verify its conclusions.*
+
+If the consultant's study presents a single "market midpoint" per position
+without disclosing the underlying city-by-city data, the weighting methodology,
+the criteria for job matching, and the positions where "professional judgment"
+overrode the data, it is not a study. It is a recommendation dressed as
+analysis.
+
+Reproducibility is not an unreasonable standard. It is the minimum standard you
+would apply to any other expenditure of this magnitude. If a contractor submitted
+a bid for a road project and said "trust us, the numbers are right, but we can't
+show you how we calculated them," no council would accept it. Compensation
+studies should receive no less scrutiny than paving contracts.
+
+> **The question to ask:** *"If we gave this study's raw data to a different
+> analyst, would they reach the same conclusions? And if we can't answer that
+> because the raw data isn't included---why not?"*
+
+
+### Principle 4: Compare Yourself to Yourself
+
+*The most important comparison is not your city versus other cities. It is your
+city this year versus your city last year, and the year before that, and the year
+before that.*
+
+A single year's turnover number is meaningless without context. Five or ten years
+of turnover data reveals a pattern. If turnover has fluctuated between 10% and
+18% for a decade, then this year's 15% is not a crisis---it is Tuesday. If this
+year's 22% is the highest value ever recorded, *then* something may have changed
+that warrants investigation.
+
+This principle prevents the most corrosive habit in municipal governance:
+treating every routine fluctuation as a crisis requiring a policy response, and
+treating every favorable fluctuation as evidence that the last policy response
+worked. Both are narratives imposed on noise. The history tells you what noise
+looks like so you can recognize signal when it actually arrives.
+
+> **The question to ask:** *"Is this value outside the range of what we've seen
+> in the last five to ten years? If not, why are we reacting to it?"*
+
+
+### Principle 5: Define Success Before You Spend Money
+
+*Any recommendation to spend more than $500,000 on compensation adjustments must
+include pre-specified, measurable success criteria and a timeline for
+evaluation.*
+
+Before implementation, require the study to state: "We expect voluntary turnover
+to decrease from X% to Y% within 24 months. We expect average time-to-fill for
+critical positions to decrease from A days to B days. We expect offer acceptance
+rates to increase from M% to N%." Write these down. Put them in the resolution
+approving the expenditure.
+
+Then actually evaluate the results against those criteria. If the city spent $2.3
+million and none of the predicted improvements materialized, that is essential
+information for the next time a compensation study lands on your desk.
+
+Without pre-specified success criteria, no expenditure can ever be judged a
+failure. It can only be judged "completed." That is not accountability. That is
+bookkeeping.
+
+> **The question to ask:** *"How will we know, two years from now, whether this
+> money solved the problem it was intended to solve?"*
+
+
+### Principle 6: Total Compensation, Not Just Salary
+
+*Never evaluate compensation competitiveness based on salary alone.*
+
+Your employees' compensation includes salary, health insurance (both the employer
+contribution and the plan quality), retirement contributions, paid time off,
+scheduling flexibility, job stability, and working conditions. If your city pays
+a significantly higher share of family health insurance than the regional average,
+that is real money---potentially thousands of dollars per employee per
+year---that a salary-only comparison ignores.
+
+Any study that compares salaries while noting that benefits are "competitive" or
+"slightly ahead" without converting those advantages to dollar values and
+offsetting them against the salary gap is presenting an incomplete and
+misleading picture.
+
+> **The question to ask:** *"What is the total dollar value of our compensation
+> package---salary plus all benefits, monetized---and how does that compare?"*
+
+
+### Principle 7: The Scalpel, Not the Sledgehammer
+
+*If the problem is in three positions, the solution should be in three
+positions.*
+
+A compensation study that recommends across-the-board increases to bring every
+position to the 50th percentile is solving a general problem. But if your actual
+recruitment and retention difficulties are concentrated in a handful of job
+families---police officers, CDL drivers, building inspectors---the appropriate
+response is targeted, not universal.
+
+Targeted adjustments cost less, address the actual problem, and preserve fiscal
+capacity for other priorities. Universal adjustments cost more, reward positions
+where no problem exists, and create ongoing structural obligations that compound
+annually.
+
+> **The question to ask:** *"Which specific positions have documented
+> recruitment or retention difficulties, and what would it cost to address only
+> those?"*
+
+
+### Principle 8: Fiscal Sustainability Is Not Optional
+
+*Every compensation decision is a permanent structural commitment. Fund it like
+one.*
+
+Moving to the 50th percentile is not a one-time cost. It is a permanent
+increase to your baseline expenditures, compounded annually by step increases,
+cost-of-living adjustments, and the growth of your workforce. If the comparison
+cities grow faster or have stronger revenue trajectories, maintaining your
+position requires escalating spending in perpetuity.
+
+Before approving any compensation adjustment, require a five-year fiscal
+projection that shows the total cost of the adjustment including compounding
+effects, the revenue growth required to sustain it, the trade-offs with other
+budget priorities, and the consequences if revenue falls short of projections.
+
+If the answer to "can we sustain this?" is "probably, if everything goes well,"
+that is not a plan. That is a bet. And you are betting with other people's money.
+
+> **The question to ask:** *"What is the five-year fully-loaded cost of this
+> adjustment, and what do we stop funding if revenue doesn't grow as
+> projected?"*
+
+
+# Part VI: What Should Happen Instead
+
+This paper has argued at length about what is wrong with the current approach.
+Fairness demands an alternative. Here is what evidence-based compensation
+governance looks like in practice.
+
+## Step 1: Build Your Own Dashboard
+
+Before you commission anything external, require your city manager to present a
+compensation dashboard using only internal data. This dashboard should include
+voluntary turnover rate by department for the last five or more years, average
+tenure at separation for voluntary departures, vacancy rate and average
+time-to-fill by position classification, total compensation cost as a percentage
+of total budget over time, and exit interview data (aggregated by reason category).
+
+This dashboard costs nothing beyond staff time. It uses data your city already
+has. And it will tell you more about your compensation situation than any external
+study, because it reflects *your* city, not a consultant's idea of your peers.
+
+## Step 2: Identify Specific Problems (If Any Exist)
+
+With the dashboard in hand, look for actual problems. Are there departments with
+turnover rates consistently above the city average? Are there positions that
+routinely take more than 90 days to fill? Are there job families where exit
+interviews consistently cite compensation as the reason for departure?
+
+If the answer is yes, you have identified a specific, targeted problem. Address
+it with a specific, targeted solution.
+
+If the answer is no---if turnover is within historical norms, positions are
+filling at acceptable rates, and exit interviews do not point to compensation as
+the driver---then you do not have a compensation problem, regardless of what a
+comparative study might say. The study measures gap. Your data measures harm. Gap
+without harm is an academic finding, not an operational emergency.
+
+## Step 3: If External Data Is Needed, Control the Process
+
+If the internal data does identify a genuine problem that warrants external
+benchmarking, the governing body---not staff, and not the consultant---should
+control the parameters of any study:
+
+- **Specify the comparator group yourself.** Require cities within a defined
+population range (for example, 50% to 200% of your city's population) and
+within a defined geographic radius.
+- **Require city-by-city data disclosure.** No aggregated averages without the
+underlying data points.
+- **Require total compensation comparisons.** Salary plus monetized benefits.
+- **Require a sensitivity analysis.** What happens to the recommendations if the
+two largest or two smallest comparators are removed?
+- **Require a cost-of-living adjustment** between comparator cities.
+- **Require pre-specified success criteria** tied to the operational metrics that
+justified the study in the first place.
+
+This is not an unreasonable set of requirements. It is what any competent board
+would demand before spending millions of dollars on any other category of
+expenditure. The fact that it would be considered unusual in the context of
+compensation studies tells you everything you need to know about how far the
+process has drifted from genuine oversight.
+
+
+# Conclusion: Governing Is Not Following
+
+The pressure on city councils to approve compensation increases based on external
+studies is real and understandable. Nobody wants to be the council member who
+"doesn't support employees." Nobody wants to be blamed when a valued employee
+leaves for a neighboring city. The slogan *"we need to be competitive"* is
+powerful precisely because it makes inaction feel irresponsible.
+
+But governing is not following. Governing is asking the hard questions, demanding
+the evidence, and making decisions based on what the data actually shows rather
+than what a slogan implies. Every dollar committed to compensation that was not
+justified by evidence is a dollar unavailable for roads, parks, public safety
+equipment, infrastructure, or reserves. Those trade-offs are real, even when they
+are invisible.
+
+The principles in this paper do not require statistical expertise. They do not
+require hiring counter-consultants or building complex models. They require only
+four things: the willingness to ask "show me the data" before agreeing to the
+expenditure, the discipline to define success before spending the money, the
+honesty to evaluate whether the money worked after it was spent, and the courage
+to say "this slogan is not evidence" in a room full of people who have stopped
+questioning it.
+
+Your community elected you to exercise judgment on their behalf. A compensation
+study is an input to that judgment, not a substitute for it. The moment you treat
+it as a substitute---the moment the consultant's recommendation becomes the
+council's decision without independent scrutiny---you have outsourced your most
+important function.
+
+Everything you need to govern well is inside your own city. Start looking there.
+
+
+# Appendix A: Quick-Reference Checklist for Governing Bodies
+
+```{r}
+#| label: tbl-checklist
+
+checklist <- data.frame(
+  `Before Approving Any Compensation Study` = c(
+    "Have we reviewed our own turnover data by department for the last 5+ years?",
+    "Do we have exit interview data identifying why employees leave?",
+    "Have we calculated vacancy rates and time-to-fill by position?",
+    "Can we identify specific positions or departments with documented problems?",
+    "Have we computed total compensation (salary + monetized benefits) for our workforce?"
+  ),
+  `Before Approving Study Recommendations` = c(
+    "Can we see the city-by-city data underlying the survey midpoints?",
+    "Are all comparator cities within 2x of our population?",
+    "Has a sensitivity analysis been performed removing the largest and smallest comparators?",
+    "Has total compensation (not just salary) been compared?",
+    "Have pre-specified success criteria been defined with a timeline for evaluation?"
+  ),
+  check.names = FALSE
+)
+
+ft <- flextable::flextable(checklist) |>
+  flextable::add_header_lines(
+    values = "Compensation Governance Checklist"
+  ) |>
+  flextable::color(i = 1, part = "header", color = "steelblue") |>
+  flextable::italic(i = 1, part = "header") |>
+  flextable::align(i = 1, part = "header", align = "left") |>
+  flextable::fontsize(i = 1, part = "header", size = 13) |>
+  flextable::bg(i = 1, part = "header", bg = "white") |>
+  flextable::bg(i = 2, part = "header", bg = "palegreen") |>
+  flextable::fontsize(part = "body", size = 10) |>
+  flextable::fontsize(i = 2, part = "header", size = 10) |>
+  flextable::valign(valign = "top", part = "body") |>
+  ftExtra::colformat_md() |>
+  flextable::set_table_properties(layout = "autofit")
+
+ft
+```
+
+
+# Appendix B: The Eight Principles at a Glance
+
+```{r}
+#| label: tbl-principles
+
+principles <- data.frame(
+  `#` = 1:8,
+  Principle = c(
+    "Look Inward First",
+    "Demand Evidence, Not Slogans",
+    "If You Cannot Reproduce It, You Cannot Trust It",
+    "Compare Yourself to Yourself",
+    "Define Success Before You Spend Money",
+    "Total Compensation, Not Just Salary",
+    "The Scalpel, Not the Sledgehammer",
+    "Fiscal Sustainability Is Not Optional"
+  ),
+  `Core Idea` = c(
+    "Everything your city needs to know about its compensation is inside your city.",
+    "'We need to be competitive' is a hypothesis, not a fact. Treat it like one.",
+    "Any study recommending public expenditures must be independently verifiable.",
+    "Your most important benchmark is your own historical data, not other cities.",
+    "Pre-specify measurable success criteria before approving the expenditure.",
+    "Never evaluate competitiveness on salary alone. Monetize and include benefits.",
+    "If the problem is in three positions, the solution should be in three positions.",
+    "Every compensation adjustment is a permanent structural commitment. Fund it like one."
+  ),
+  check.names = FALSE
+)
+
+ft2 <- flextable::flextable(principles) |>
+  flextable::add_header_lines(
+    values = "The Eight Principles of Evidence-Based Compensation Governance"
+  ) |>
+  flextable::color(i = 1, part = "header", color = "steelblue") |>
+  flextable::italic(i = 1, part = "header") |>
+  flextable::align(i = 1, part = "header", align = "left") |>
+  flextable::fontsize(i = 1, part = "header", size = 13) |>
+  flextable::bg(i = 1, part = "header", bg = "white") |>
+  flextable::bg(i = 2, part = "header", bg = "palegreen") |>
+  flextable::fontsize(part = "body", size = 10) |>
+  flextable::fontsize(i = 2, part = "header", size = 10) |>
+  flextable::width(j = 1, width = 0.4) |>
+  flextable::width(j = 2, width = 1.8) |>
+  flextable::width(j = 3, width = 4.0) |>
+  flextable::valign(valign = "top", part = "body") |>
+  ftExtra::colformat_md() |>
+  flextable::set_table_properties(layout = "autofit")
+
+ft2
+```

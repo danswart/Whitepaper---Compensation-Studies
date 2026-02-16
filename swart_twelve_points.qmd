@@ -1,0 +1,582 @@
+---
+title: "The Twelve Principles of Responsible Stewardship"
+subtitle: "A Guide for Elected Officials and Governing Bodies"
+authors: 
+  - name: "Dan Swart, CPA (ret)"
+date: today
+date-format: long
+# bibliography: manual-refs.bib
+format:
+  html:
+    resources:
+      - reference-backlinks.js
+    include-after-body:    
+      - text: |
+          # <script type="text/javascript" src="reference-backlinks.js"></script>
+    default: true         
+    code-copy: true
+    code-link: true        # This adds individual buttons
+    code-fold: true        # Hide code by default, show on click
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-block-bg: "#FAEBD7"
+    code-block-border-left: "#31BAE9"
+    embed-resources: true     # Set to 'false' for drafts. Override if you're NOT sharing output
+    include-in-header:
+      - text: 
+          <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Cabin&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Schoolbell&display=swap" rel="stylesheet">
+      - header.html
+    css:
+      - swart.css
+      - tachyons.min.css
+      - r-colors.css
+    fontsize: 18pt
+    lightbox: true
+    page-layout: full
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    html-math-method: katex
+    df-print: paged
+    toc: true
+    toc-float: true
+    citeproc: true
+    link-citations: true
+    linestretch: 1.0
+    
+    
+    
+  typst:
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+    fontsize: 16pt
+    mainfont: "Cabin"
+  
+
+    
+  revealjs:
+    slide-number: true
+    transition: fade
+    code-overflow: wrap
+    center: true
+    smaller: true
+    scrollable: true
+    chalkboard: true
+    multiplex: false
+    theme: solarized
+    reference-location: margin
+    logo: img/red-cross-640-435.png
+    footer: "Footer text"
+    code-block-height: 650px
+
+
+
+  # docx:
+  #   highlight-style: github
+  #   fig_caption: true
+
+
+
+editor: source
+
+quarto:
+  render:
+    cache-refresh: true
+
+
+# for .qmd filesd
+execute:
+  echo: true
+  message: false
+  warning: false
+  eval: true
+  fig-width: 13
+  fig-height: 8
+
+
+# for .rmd files
+knitr:
+  opts_chunk:
+    echo: true
+    error: false
+    warning: false
+    message: false
+    cache: false
+
+
+---
+
+
+```{r}
+#| label: setup
+#| include: false
+
+
+# install.packages(c("mapview", "survey", "srvyr", "arcgislayers"))
+
+# census_api_key("95496766c51541ee6f402c1e1a8658581285b759", install = TRUE, overwrite = TRUE)
+
+
+# # load libraries - NOT NEEDED
+
+
+# Force dplyr's select to take precedence
+select <- dplyr::select
+filter <- dplyr::filter
+
+# Options
+options(scipen = 999)
+options(qic.clshade = T) # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.linecol = 'black') # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.signalcol = "firebrick") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.targetcol = "purple") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(DT.options = list(dom = 'pBlfrti')) # Add buttons, filtering, and top (t) pagination controls
+options(shiny.maxRequestSize = 50 * 1024^2) # Set upload maximum to 50 MB
+options(tigris_use_cache = TRUE)
+options(device = "RStudioGD") 
+
+
+# Flextable defaults:
+flextable::set_flextable_defaults(
+  font.size = 14, 
+  font.family = "Cabin",
+  font.color = "black",
+  table.layout = "fixed",
+  border.color = "darkgray",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4,
+  line_spacing = 1.3,
+  digits = 2,
+  decimal.mark = ".",
+  big.mark = " ",
+  na_str = "<na>",
+  post_process_html = identity,
+  post_process_docx = identity
+)
+
+
+
+# Flextable built-in themes:
+  # flextable::theme_alafoli()	|>  # BLAH
+  # flextable::theme_apa()  # THIS IS NICE
+  # flextable::theme_booktabs() |>  # NICE, MORE COMPACT
+  # flextable::theme_box() |>   # OK, INCLUDES CELL BORDERS
+  # flextable::theme_tron() |>  # 'DARK MODE' BLUE TEXT
+  # flextable::theme_tron_legacy() |>   # 'DARK MODE' YELLOW TEXT
+  # flextable::theme_vader() |>    # 'DARK MODE' WHITE TEXT
+  # flextable::theme_vanilla() |>   # NOT SPECIAL
+  # flextable::theme_zebra()	|>
+  #
+
+
+# Set global theme for consistent plots
+ggplot2::theme_set(
+  ggplot2::theme_minimal(base_size = 20) +
+    ggplot2::theme(
+      plot.title.position = "plot",
+      plot.title = ggtext::element_textbox_simple(
+        family = "Cabin",
+        face = "bold",
+        color = "darkgreen",
+        size = 16,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 0.0, 5.5),
+        margin = ggplot2::margin(0, 0, 5.5, 0)
+      ),
+      plot.subtitle = ggtext::element_textbox_simple(
+        family = "Cabin",
+        color = "darkgreen",
+        face = "bold",
+        size = 14,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 5.5, 5.5),
+        margin = ggplot2::margin(0.0, 0, 5.5, 0)
+      ),
+      plot.caption = ggtext::element_markdown(
+        family = "Cabin",
+        size = 14,
+        hjust = 1,
+        color = "darkblue",
+        face = "italic",
+        fill = "yellow",
+        lineheight = 1.0
+      ),
+      axis.text.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 14),
+        # ggplot2::element_blank(),
+      axis.text.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12),
+        # ggplot2::element_blank(),
+      strip.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black",
+        size = 12,
+        face = "italic",
+        margin = ggplot2::margin(2, 0, 0.5, 0, "lines")
+      ),
+      axis.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black"),
+      panel.background = ggplot2::element_rect(fill = "white", color = NA),
+      plot.background = ggplot2::element_rect(fill = "white", color = NA),
+      legend.position = "none",
+      panel.spacing.x = grid::unit(1.5, "cm"),
+      panel.spacing.y = grid::unit(1.5, "cm"),
+      plot.margin = ggplot2::margin(20, 20, 20, 20, "pt")
+    )
+)
+
+
+
+  
+# Set seed for reproducibility
+base::set.seed(123)
+
+```
+
+# Principle 1: All You Need to Know to Govern and Improve Is Already Inside Your Organization
+
+*The knowledge, data, and capability to manage and improve your city already
+exists within your city.*
+
+Your employees already know where your processes break down. Your data systems contain the patterns that reveal what is working and what is not. Your operational history contains the evidence of what interventions succeeded and which ones failed. 
+
+The answers to your organization's most important questions are not in a consultant's database of other cities' practices. They are in your own payroll records, your own HR files, your own budget trends, your own service delivery metrics, and the institutional knowledge of your own workforce.
+
+In the beginning, that takes 'extra' work by staff and the governing body because you have been copying the past over and over.  In the long run the new ways are faster and take less work.
+
+When a governing body reaches outside the organization for answers before
+exhausting what is inside, it sends a message — to staff, to residents, and to itself — you're just not worth the trouble. That message is always wrong, and it is always corrosive.
+
+
+**Great questions to ask of staff:** 
+
+*"Can you pursuade me with our data that we are losing our 'best and brightest' to other cities - which ones?  Why?"*
+
+*"Are we adopting this practice because our own evidence supports it, or because someone else does it?"*
+
+> Of course, you need to know which types of questions to ask of staff and each other.  If you don't know which questions to ask, you might as well turn the decisions over to staff and skip the board meetings. Example questions are shown below.
+
+
+# Principle 2: Copying Others Is Always Dangerous
+
+*Importing another organization's 'solutions' into your organization means their problems are now your problems.  Copying others is not benchmarking. It is negligence dressed up as diligence.*
+
+When you adopt another city's practice, you import — without examination — their priorities, their constraints, their mistakes, and their political compromises.  You assume, without testing, that their situation is comparable to yours, that their solution actually worked for them, and that the factors driving their results are present in your organization. 
+
+None of these assumptions is self-evidently true, and all of them are routinely left unexamined.
+
+Every city has a unique revenue structure, a unique demographic profile, unique service demands, a unique labor market, and a unique history. A solution that works in a city of 1.5 million with a $3 billion budget may be disastrous in a city of 40,000 with a $90 million budget. 
+
+When you copy, you don't import context. You import only the 'answer' — stripped of the reasoning, the tradeoffs, and the conditions that ***MAY*** have made it appropriate somewhere else.
+
+The most damaging form of copying is the one that feels responsible:
+commissioning a study that compares your city to others and then implementing
+whatever the study recommends. This feels like due diligence but it is actually the outsourcing of judgment.
+
+**Great questions to ask of staff:** 
+
+*"Are we adopting this practice because our own evidence supports it, or because someone else does it?"*
+
+
+# Principle 3: Know Your Own City First
+
+*Before looking outside your organization for answers, exhaust what your own
+data tells you.*
+
+The primary duty of a governing body is to understand — with specificity and
+precision — what is actually happening inside the organization it governs. Not what is happening in neighboring cities. Not what a consultant says is
+happening. Not what a slogan implies. What your own data, from your own systems, about your own operations, actually shows.
+
+Any decision made without first consulting internal data is a decision made in voluntary ignorance. A governing body that cannot describe its own turnover patterns, its own vacancy rates, its own revenue trajectory, and its own cost structure has no business evaluating any external recommendation — because it has no baseline against which to judge whether the recommendation makes sense.
+
+
+**Great questions to ask of staff:** 
+
+*"What does our own data tell us about this issue, and how hard did we look?"*
+
+*"Are there data that contradict these findings?*
+
+
+# Principle 4: Never commit public resources based on a claim that has not been tested against local data.
+
+*An Assertion Without Evidence Is a Slogan, Not Evidence*
+
+When staff, consultants, or fellow board members assert that a problem
+exists — whether it is employee retention, infrastructure deterioration, service gaps, or anything else — the governing body's first response should be: "Show me the hard data." Not anecdotes. Not impressions. Not what "everybody knows."  Not what a taxpayer said to me at Starbucks.
+
+Slogans that go unchallenged become policy by default. The more a claim is
+repeated without evidence, the more dangerous it becomes, because repetition
+creates the illusion of proof. A governing body that accepts slogans as
+justification for spending has abdicated its oversight obligation.
+
+The most dangerous slogan is the one that "everybody agrees with." That is not consensus. It is the absence of scrutiny.
+
+
+**Great questions to ask of staff:** 
+
+*"What specific, verifiable evidence supports this claim, and has anyone challenged it?"*
+
+
+
+# Principle 5: Distinguish Between a Gap and a Harm
+
+*A difference between your city and another city is not, by itself, a problem. It is only a problem if it is causing measurable harm to your operations.*
+
+Many studies and reports will show that your city differs from others on some
+metric — compensation, staffing ratios, spending per capita, technology
+adoption.  A difference is an observation.  It becomes a problem only when it
+produces a measurable, demonstrable negative consequence for your city's
+operations or residents.
+
+A gap without harm is a meaningless distinction. Harm without a gap is an operational failure. Only harm — justified by evidence — warrants expenditure.
+
+**Great questions to ask of staff:** 
+
+*"Is this difference actually causing a problem we can measure, or is it just a difference?"*
+
+
+
+# Principle 6: Understand the History Before Reacting to the Present
+
+*No single data point has meaning without the context of what came before it.*
+
+A number in isolation — this year's turnover rate, this quarter's sales tax
+revenue, this month's response time — tells you nothing about whether something has actually changed. It is one frame from a movie. You need the movie.
+
+Before reacting to any metric, require enough historical data to understand the normal range of variation. If this year's value falls within the range of what has happened in prior years, the system has not changed — and a policy response is not warranted. Reacting to normal variation is not governing. It is tampering. And tampering makes systems worse, not better.
+
+The most corrosive habit in governance is treating every routine
+fluctuation as a crisis requiring a policy response, and treating every
+favorable fluctuation as evidence that the last policy response worked. Both
+are narratives and each has a historical constext.  History tells you what you should expect in the future.  Results falling outside the limits of expectation may be an signal that something has fundamentally changed.
+
+*Last year's number, last quarter's number, last month's number, last week's number, yesterday's number, earlier today's number by itself if meaningless.*
+
+
+**Great questions to ask of staff:** 
+
+*"Is this value outside the RANGE of what we've seen in the last five to ten years? If not, why are we reacting to it?"*
+
+
+
+
+
+# Principle 7: Define Success Before You Spend Money
+
+*Any significant expenditure must include pre-specified, measurable criteria by which it will be judged successful or unsuccessful, and a timeline for that evaluation.*
+
+If you cannot articulate — before writing the check — what success looks like
+in concrete, measurable terms, you are not making an investment. You are making an expenditure (even if someone calls it an 'investment').
+
+Pre-specified success criteria serve two purposes: they force the proponent of the expenditure to make a falsifiable commitment, and they give the governing body a basis for accountability. Without them, every expenditure is
+self-justifying, every outcome is reinterpreted as a success, and the governing body learns nothing from experience.
+
+Write the success criteria into the resolution approving the expenditure. Then actually evaluate the results.
+
+
+**Great questions to ask of staff:** 
+
+*"How will we know whether this money solved the problem it was intended to solve?"*
+
+*"What will the data say if we are successful?"*
+
+
+# Principle 8: Reproducibility Is the Minimum Standard for Transparency
+
+*Any analysis, study, or recommendation used to justify public expenditure must be transparent enough that an independent party could re-create the analysis and verify its conclusions.*
+
+If a consultant, staff member, or vendor presents a recommendation and the
+governing body cannot examine the underlying data, methodology, and
+assumptions — or cannot hand the work to an independent analyst for
+verification — the recommendation is not evidence-based. It is trust-based.
+
+Trust is appropriate for personal relationships. It is not sufficient for public expenditure. This is not an unreasonable standard. It is the standard you would apply to a construction bid, an insurance claim, or a tax audit. It should apply to every recommendation that costs the public money.
+
+
+**Great questions to ask of staff:** 
+
+*"If we gave this analysis to a different analyst, could they verify the conclusions?  If not — why not?"*
+
+
+
+# Principle 9: The Cure Must Be Proportional to the Disease
+
+*If the problem is specific, the solution must be specific. Universal solutions to specific problems waste resources and create unintended consequences.*
+
+When a genuine, documented problem exists in a particular department, classification, or function, the appropriate response is targeted to that particular department, classification, or function.
+
+Across-the-board remedies to localized problems spend money where no problem
+exists, create structural cost obligations that compound annually, and often
+produce unintended consequences — compression, resentment, or misaligned
+incentives/  These are worse than the original problem.
+
+A scalpel costs less and works better than a sledgehammer.
+
+**Great questions to ask of staff:** 
+
+*"Can we solve this specific problem with a specific intervention, rather than a systemic one?"*
+
+
+# Principle 10: Every Recurring Expenditure Is a Permanent Structural Commitment
+
+*Before approving any ongoing cost, require a multi-year fiscal projection that includes compounding effects, revenue assumptions, and the trade-offs with other priorities.*
+
+A one-time expenditure is a decision. A recurring expenditure is a trajectory. The difference matters enormously, and governing bodies routinely underestimate
+it.
+
+A 5% compensation adjustment is not a one-year cost — it is a permanent
+increase to the baseline, compounded annually by step increases, benefit cost
+growth, and workforce expansion. Before approving any recurring commitment,
+demand to see the five-year fully-loaded projection. Demand to know what
+revenue growth is required to sustain it. Demand to know what gets cut or
+deferred if that revenue doesn't materialize.
+
+If the answer is "it works if everything goes well," that is not a plan. That
+is a bet with other people's money.
+
+
+**Great questions to ask of staff:** 
+
+*"What is the five-year fully-loaded cost, and can we stop funding if revenue doesn't grow as projected?"*
+
+
+
+
+# Principle 11: Beware the Outsourced Decision
+
+*When you adopt a policy of matching what others do, you have delegated your
+governing authority to entities that are not accountable to your residents.*
+
+Every time a governing body sets policy by reference to what other
+jurisdictions are doing — whether in compensation, staffing, technology, or any other domain — it is importing those jurisdictions' priorities, constraints, mistakes, and political choices into its own budget.
+
+Those other jurisdictions did not consult your residents. They do not answer to your taxpayers. They may have different revenue structures, different
+demographics, different service demands, and different risk tolerances.
+
+The moment a consultant's comparison or a neighboring city's practice becomes the governing body's policy without independent analysis of local conditions, the governing body has outsourced its most important function.
+
+
+**Great questions to ask of staff:** 
+
+
+*"Are we making this decision, or are we adopting someone else's decision?"*
+
+
+
+# Principle 12: The Absence of Data Is Not Permission to Proceed — It Is a Command to Stop
+
+*If the data needed to make an informed decision does not exist, creating that data is the first priority, not the last.*
+
+When a governing body discovers that it lacks the data to evaluate a
+recommendation — no historical turnover records, no exit interview aggregation, no time-series budget data, no cost-of-living analysis — the correct response is not to proceed without data. It is to build the data infrastructure before making the decision.
+
+The fact that a city has been making multi-million-dollar decisions without
+maintaining the data needed to evaluate those decisions is itself a governance finding more important than any specific policy question. It means the organization has been flying blind and calling it leadership.
+
+Fix that first. Everything else follows.
+
+
+**Great questions to ask of staff:** 
+
+*"Do we have the data to evaluate this decision — and if not, why are we making it?"*
+
+
+{{< pagebreak >}}
+
+
+# Summary
+
+```{r}
+#| label: tbl-twelve-principles
+
+principles <- data.frame(
+  `#` = 1:12,
+  Principle = c(
+    "Everything You Need Is Already Inside Your Organization",
+    "Copying Others Is Always Dangerous",
+    "Know Your Own City First",
+    "An Assertion Without Evidence Is a Slogan, Not a Business Case",
+    "Distinguish Between a Gap and a Harm",
+    "Understand the History Before Reacting to the Present",
+    "Define Success Before You Spend Money",
+    "Reproducibility Is the Minimum Standard for Public Decisions",
+    "The Cure Must Be Proportional to the Disease",
+    "Every Recurring Expenditure Is a Permanent Structural Commitment",
+    "Beware the Outsourced Decision",
+    "The Absence of Data Is Not Permission to Proceed"
+  ),
+  `The Question to Ask` = c(
+    "Have we explored what our own people and data can tell us first?",
+    "Are we adopting this because our evidence supports it, or because someone else does it?",
+    "What does our own data tell us about this issue, and have we looked?",
+    "What specific, verifiable evidence supports this claim?",
+    "Is this difference actually causing a problem we can measure?",
+    "Is this value outside the range of what we've seen in the last 5-10 years?",
+    "How will we know, two years from now, whether this money worked?",
+    "Could a different analyst verify these conclusions?",
+    "Can we solve this specific problem with a specific intervention?",
+    "What is the five-year cost, and what do we stop funding if revenue falls short?",
+    "Are we making this decision, or adopting someone else's?",
+    "Do we have the data to evaluate this decision — and if not, why are we making it?"
+  ),
+  check.names = FALSE
+)
+
+ft <- flextable::flextable(principles) |>
+  flextable::add_header_lines(
+    values = "The Twelve Principles of Responsible Stewardship"
+  ) |>
+  flextable::color(i = 1, part = "header", color = "steelblue") |>
+  flextable::italic(i = 1, part = "header") |>
+  flextable::align(i = 1, part = "header", align = "left") |>
+  flextable::fontsize(i = 1, part = "header", size = 13) |>
+  flextable::bg(i = 1, part = "header", bg = "white") |>
+  flextable::bg(i = 2, part = "header", bg = "palegreen") |>
+  flextable::fontsize(part = "body", size = 9) |>
+  flextable::fontsize(i = 2, part = "header", size = 9) |>
+  flextable::width(j = 1, width = 0.35) |>
+  flextable::width(j = 2, width = 2.5) |>
+  flextable::width(j = 3, width = 3.5) |>
+  flextable::valign(valign = "top", part = "body") |>
+  ftExtra::colformat_md() |>
+  flextable::set_table_properties(layout = "autofit")
+
+ft
+```

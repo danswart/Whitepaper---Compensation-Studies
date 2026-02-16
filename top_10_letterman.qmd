@@ -1,0 +1,104 @@
+---
+title: "TOP 10 REASONS"
+subtitle: "Your City Should NOT Rely on a Compensation and Classification Study"
+date: today
+format:
+  html:
+    self-contained: true
+    theme: flatly
+  pdf:
+    geometry: margin=1in
+    fontsize: 12pt
+  typst:
+    margin:
+      x: 1in
+      y: 1in
+---
+
+```{=typst}
+#align(center, text(size: 11pt, style: "italic", fill: rgb("#666666"))[
+  _From the home office in Schertz, Texas_
+])
+
+#v(1.5em)
+```
+
+::: {.content-visible when-format="html"}
+::: {style="text-align: center; color: #666; font-style: italic; margin-bottom: 1.5em;"}
+*From the home office in Schertz, Texas*
+:::
+:::
+
+**Number 10:**
+The consultant who wrote it can't name three streets in your city — but they
+just told you how to spend $2.3 million of your residents' money.
+
+**Number 9:**
+The study compared your Police Chief, who manages 45 officers, to San Antonio's,
+who commands 2,000 — and concluded you're "below market."
+
+**Number 8:**
+It includes the phrase "professional judgment" — which is consultant-speak for
+"we changed the numbers but we're not going to tell you where or why."
+
+**Number 7:**
+Your benefits package is worth $2,000 more per employee than the regional
+average — but the study called it "slightly ahead" and never converted it to
+dollars.
+
+**Number 6:**
+Seventy-seven percent of your workforce was found to be "below market" — which
+is what happens when you benchmark a city of 40,000 against a city of 1.5
+million.
+
+**Number 5:**
+The study recommends the same solution for every position — more money — whether
+you have 200 applicants or 2.
+
+**Number 4:**
+It contains no turnover data, no exit interview data, no vacancy data, and no
+time-to-fill data — but it's very confident about what the problem is.
+
+**Number 3:**
+If you gave the study to a different analyst and asked them to verify the
+conclusions, they couldn't — because the underlying data isn't in it.
+
+**Number 2:**
+Every city in your region has commissioned the same study, implemented the same
+recommendations, and moved to the same 50th percentile — which moved the 50th
+percentile — which is why you need another study.
+
+{{< pagebreak >}}
+
+```{=typst}
+#v(2em)
+#align(center, text(size: 14pt, weight: "bold", fill: rgb("#C0392B"))[
+  And the Number 1 reason your city should NOT rely on \
+  a Compensation and Classification Study:
+])
+
+#v(1.5em)
+```
+
+::: {.content-visible when-format="html"}
+::: {style="text-align: center; font-size: 1.2em; font-weight: bold; color: #C0392B; margin: 1.5em 0;"}
+And the Number 1 reason your city should NOT rely on
+a Compensation and Classification Study:
+:::
+:::
+
+You are about to make a multi-million-dollar *permanent* spending commitment
+based on a seven-page document, and nobody in the room can answer the question:
+
+```{=typst}
+#v(0.8em)
+#align(center, text(size: 16pt, weight: "bold", style: "italic", fill: rgb("#1A3A5C"))[
+  "How will we know if this worked?"
+])
+```
+
+::: {.content-visible when-format="html"}
+::: {style="text-align: center; font-size: 1.4em; font-weight: bold; font-style: italic; color: #1A3A5C; margin-top: 1em;"}
+"How will we know if this worked?"
+:::
+:::

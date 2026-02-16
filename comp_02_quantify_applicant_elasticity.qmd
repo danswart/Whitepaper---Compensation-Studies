@@ -1,0 +1,156 @@
+---
+title: "Quantifying Applicant Elasticity in Municipal Hiring"
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+# Namespacing-only: no library() calls required
+```
+
+## Concept
+
+**Applicant elasticity** (informal, practical) answers:
+
+> If we change compensation (or total rewards), how much does the applicant pool (or acceptance rate) change?
+
+In economic terms, elasticity is the % change in an outcome per % change in pay. In practice, you can estimate this with your HR data.
+
+## Define outcomes (choose one)
+
+Common outcomes to model:
+
+- **Applicants per posting** (count)
+- **Qualified applicants per posting** (count)
+- **Offer acceptance rate** (0/1)
+- **Time-to-fill** (days)
+- **Turnover rate** (monthly/quarterly)
+
+Pick outcomes that match the question Council is trying to answer.
+
+## Minimal data fields
+
+Per posting (recommended):
+
+- posting_id, department, job_family, job_title
+- posted_date, close_date
+- pay_min, pay_max (or midpoint), benefits indicator(s)
+- applicants_n, qualified_applicants_n
+- offers_n, accepts_n
+- source_mix (optional)
+- certification_required (Y/N), shift (optional)
+
+## Practical elasticity calculation (two-point estimate)
+
+If you have a discrete pay change event for a role:
+
+\[
+\text{Elasticity} \approx \frac{\%\Delta \text{Applicants}}{\%\Delta \text{Pay}}
+\]
+
+Example:
+- Applicants per posting rose from 10 to 13 (30% increase)
+- Pay midpoint rose from $60k to $63k (5% increase)
+- Elasticity ≈ 30% / 5% = 6.0
+
+This is simple but sensitive to confounding.
+
+## Model-based estimate (recommended)
+
+### A. Count outcomes (applicants): Poisson / negative binomial
+
+- Use a GLM with log link:
+  - outcome: applicants_n
+  - predictor: log(pay_midpoint)
+  - controls: department, month, posting duration, credential requirement, etc.
+
+Interpretation:
+- coefficient on log(pay) is an elasticity.
+
+### B. Acceptance outcome: logistic regression
+
+- outcome: accept (0/1) at offer level
+- predictor: pay_offer or pay_midpoint
+- controls: job family, benefits, shift, tenure requirement, etc.
+
+Interpretation:
+- marginal effect: change in acceptance probability for a pay change.
+
+## R skeleton (namespaced)
+
+This is a template (you will adapt variable names to your data). It will not run until you supply `postings_df`.
+
+```{r}
+#| label: elasticity-skeleton
+#| eval: false
+
+# postings_df columns assumed:
+# applicants_n, pay_mid, department, job_family, posted_month, credential_required
+
+postings_df <- postings_df |>
+  dplyr::mutate(
+    log_pay_mid = base::log(pay_mid)
+  )
+
+# Poisson GLM: applicants_n ~ log(pay) + controls
+fit_poisson <- stats::glm(
+  applicants_n ~ log_pay_mid + department + job_family + posted_month + credential_required,
+  data   = postings_df,
+  family = stats::poisson(link = "log")
+)
+
+# Elasticity estimate (approx): coefficient on log_pay_mid
+elasticity_est <- stats::coef(fit_poisson)[["log_pay_mid"]]
+
+elasticity_est
+```
+
+## Evidence summary table (flextable)
+
+Use this to report elasticity estimates by job family and make the assumptions explicit.
+
+```{r}
+#| label: elasticity-report-table
+#| results: asis
+
+report_df <- base::data.frame(
+  `Job family / role` = c("Firefighter", "Police Officer", "Engineer", "Planner"),
+  `Outcome modeled` = c("Applicants per posting", "Acceptance rate", "Applicants per posting", "Time-to-fill"),
+  `Estimated elasticity / effect` = c("", "", "", ""),
+  `Data window` = c("", "", "", ""),
+  `Controls included` = c("Seasonality; posting duration", "Shift; benefits; location", "Credential; dept", "Dept; month"),
+  `Interpretation for Council` = c(
+    "If pay rises 1%, applicants rise ~X%",
+    "A $1,000 increase changes acceptance by ~X points",
+    "If pay rises 1%, applicants rise ~X%",
+    "If pay rises 1%, time-to-fill changes by ~X%"
+  )
+)
+
+ft <- flextable::flextable(report_df)
+ft <- flextable::autofit(ft)
+ft
+```
+
+## Guardrails (what not to conclude)
+
+- Do **not** interpret an elasticity as “pay causes everything.” Controls matter.
+- Do **not** average across unrelated roles. Elasticity is role- and labor-market-specific.
+- Do **not** ignore non-pay levers: schedule, supervision, equipment, workload, credential pipeline.
+
+## Deliverable to Council
+
+A defensible “market” claim should include:
+
+- role-specific elasticity estimate (or acceptance response)
+- current recruiting stress indicators
+- comparison to internal alternatives (training pipeline, scheduling, job redesign)
+- fiscal sustainability and tradeoffs
