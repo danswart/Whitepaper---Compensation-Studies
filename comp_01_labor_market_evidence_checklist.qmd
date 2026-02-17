@@ -1,65 +1,382 @@
 ---
-title: "Municipal Compensation Decisions: Labor Market Evidence Checklist"
+title: "Municipal Compensation Decisions: Market Labor Pool Evidence"
+subtitle: "Checklist Using Local Data"
+authors: 
+  - name: "Dan Swart, CPA (ret)"
+date: today
+date-format: long
+# bibliography: manual-refs.bib
 format:
   html:
+    resources:
+      - reference-backlinks.js
+    include-after-body:    
+      - text: |
+          # <script type="text/javascript" src="reference-backlinks.js"></script>
+    default: true         
+    code-copy: true
+    code-link: true        # This adds individual buttons
+    code-fold: true        # Hide code by default, show on click
+    code-summary: "Show the code"
+    code-overflow: wrap
+    code-block-bg: "#FAEBD7"
+    code-block-border-left: "#31BAE9"
+    embed-resources: true     # Set to 'false' for drafts. Override if you're NOT sharing output
+    include-in-header:
+      - text: 
+          <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Cabin&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Schoolbell&display=swap" rel="stylesheet">
+      - header.html
+    css:
+      - swart.css
+      - tachyons.min.css
+      - r-colors.css
+    fontsize: 18pt
+    lightbox: true
+    page-layout: full
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    html-math-method: katex
+    df-print: paged
     toc: true
-    number-sections: true
+    toc-float: true
+    citeproc: true
+    link-citations: true
+    linestretch: 1.0
+    
+    
+    
+  typst:
+    fig-width: 13
+    fig-height: 8
+    fig-dpi: 300
+    margin:
+      x: 1in
+      y: 1in
+    toc: false
+    fontsize: 16pt
+    mainfont: "Cabin"
+  
+
+    
+  revealjs:
+    slide-number: true
+    transition: fade
+    code-overflow: wrap
+    center: true
+    smaller: true
+    scrollable: true
+    chalkboard: true
+    multiplex: false
+    theme: solarized
+    reference-location: margin
+    logo: img/red-cross-640-435.png
+    footer: "Footer text"
+    code-block-height: 650px
+
+
+
+  # docx:
+  #   highlight-style: github
+  #   fig_caption: true
+
+
+
+editor: source
+
+quarto:
+  render:
+    cache-refresh: true
+
+
+# for .qmd filesd
 execute:
-  echo: true
-  warning: false
+  echo: false
   message: false
+  warning: false
+  eval: true
+  fig-width: 13
+  fig-height: 8
+
+
+# for .rmd files
+knitr:
+  opts_chunk:
+    echo: false
+    error: false
+    warning: false
+    message: false
+    cache: false
+
+
 ---
+
 
 ```{r}
 #| label: setup
 #| include: false
-# Namespacing-only: no library() calls required
+
+
+# install.packages(c("mapview", "survey", "srvyr", "arcgislayers"))
+
+# census_api_key("95496766c51541ee6f402c1e1a8658581285b759", install = TRUE, overwrite = TRUE)
+
+
+# # load libraries - NOT NEEDED
+
+
+# Force dplyr's select to take precedence
+select <- dplyr::select
+filter <- dplyr::filter
+
+# Options
+options(scipen = 999)
+options(qic.clshade = T) # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.linecol = 'black') # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.signalcol = "firebrick") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(qic.targetcol = "purple") # NO LONGER NEEDED; CHARTS ALL PREPARED WITH GGPLOT2 ONLY
+options(DT.options = list(dom = 'pBlfrti')) # Add buttons, filtering, and top (t) pagination controls
+options(shiny.maxRequestSize = 50 * 1024^2) # Set upload maximum to 50 MB
+options(tigris_use_cache = TRUE)
+options(device = "RStudioGD") 
+
+
+# Flextable defaults:
+flextable::set_flextable_defaults(
+  font.size = 14, 
+  font.family = "Cabin",
+  font.color = "black",
+  table.layout = "fixed",
+  border.color = "darkgray",
+  padding.top = 3, padding.bottom = 3,
+  padding.left = 4, padding.right = 4,
+  line_spacing = 1.3,
+  digits = 2,
+  decimal.mark = ".",
+  big.mark = " ",
+  na_str = "<na>",
+  post_process_html = identity,
+  post_process_docx = identity
+)
+
+
+
+# Flextable built-in themes:
+  # flextable::theme_alafoli()	|>  # BLAH
+  # flextable::theme_apa()  # THIS IS NICE
+  # flextable::theme_booktabs() |>  # NICE, MORE COMPACT
+  # flextable::theme_box() |>   # OK, INCLUDES CELL BORDERS
+  # flextable::theme_tron() |>  # 'DARK MODE' BLUE TEXT
+  # flextable::theme_tron_legacy() |>   # 'DARK MODE' YELLOW TEXT
+  # flextable::theme_vader() |>    # 'DARK MODE' WHITE TEXT
+  # flextable::theme_vanilla() |>   # NOT SPECIAL
+  # flextable::theme_zebra()	|>
+  #
+
+
+# Set global theme for consistent plots
+ggplot2::theme_set(
+  ggplot2::theme_minimal(base_size = 20) +
+    ggplot2::theme(
+      plot.title.position = "plot",
+      plot.title = ggtext::element_textbox_simple(
+        family = "Cabin",
+        face = "bold",
+        color = "darkgreen",
+        size = 16,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 0.0, 5.5),
+        margin = ggplot2::margin(0, 0, 5.5, 0)
+      ),
+      plot.subtitle = ggtext::element_textbox_simple(
+        family = "Cabin",
+        color = "darkgreen",
+        face = "bold",
+        size = 14,
+        fill = "yellow",
+        lineheight = 0.9,
+        padding = ggplot2::margin(5.5, 5.5, 5.5, 5.5),
+        margin = ggplot2::margin(0.0, 0, 5.5, 0)
+      ),
+      plot.caption = ggtext::element_markdown(
+        family = "Cabin",
+        size = 14,
+        hjust = 1,
+        color = "darkblue",
+        face = "italic",
+        fill = "yellow",
+        lineheight = 1.0
+      ),
+      axis.text.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.x = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 14),
+        # ggplot2::element_blank(),
+      axis.text.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12,
+        angle = 45,
+        hjust = 1
+      ),
+        # ggplot2::element_blank(),
+      axis.title.y = ggtext::element_markdown(
+        family = "Cabin",
+        face = "bold",
+        color = "blue",
+        size = 12),
+        # ggplot2::element_blank(),
+      strip.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black",
+        size = 12,
+        face = "italic",
+        margin = ggplot2::margin(2, 0, 0.5, 0, "lines")
+      ),
+      axis.text = ggtext::element_markdown(
+        family = "Cabin",
+        color = "black"),
+      panel.background = ggplot2::element_rect(fill = "white", color = NA),
+      plot.background = ggplot2::element_rect(fill = "white", color = NA),
+      legend.position = "none",
+      panel.spacing.x = grid::unit(1.5, "cm"),
+      panel.spacing.y = grid::unit(1.5, "cm"),
+      plot.margin = ggplot2::margin(20, 20, 20, 20, "pt")
+    )
+)
+
+
+
+  
+# Set seed for reproducibility
+base::set.seed(123)
+
 ```
 
-## Purpose
 
-This checklist is designed to prevent **peer benchmarking** from substituting for **local labor-market evidence**. The goal is to ensure City Council decisions are based on **observable recruitment/retention conditions**, not external comparisons alone.
+## Purpose  
 
-## Checklist structure
+\
+**Peer benchmarking** is no substitute for **local labor-market evidence**. It is the respoonsibility of City Council to see that their decisions are based on local **observable recruitment-retention-exit conditions**, not external comparisons unconnected to local conditions.
 
-The checklist is grouped into four evidence areas:
+>Slogans are no substitute for real-life data!
 
-1. **Recruiting pipeline health**
-2. **Offer/accept dynamics**
-3. **Retention and exits**
-4. **Capability and job design (what you’re actually buying)**
+***If your records system is not capturing these metrics neither the City Council nor anyone else can verify the facts (if there are any) upon which multi-million dollar compensation commitments are made.***
 
-## A. Recruiting pipeline health
+That is absolutely **NOT** transparency.
 
-Use these items for each position family (e.g., City Manager, Finance, Fire, Police, Utilities, IT, Planning).
 
-- Do we have postings with **near-zero applicants**?
-- Do we have postings with **near-zero *qualified* applicants**?
-- Are time-to-fill and re-post rates increasing?
-- Are candidate pools shrinking in specific roles, shifts, certifications, or locations?
 
-## B. Offer/accept dynamics
+## The checklist is grouped into four evidence areas:
+\
 
-- What % of **first offers are rejected**?
-- What are the top stated reasons (pay, schedule, location, culture, benefits, job scope)?
-- Are counteroffers increasing?
-- Are we losing finalists to specific employers?
+1. **Recruiting-Applicant Metrics**
 
-## C. Retention and exits
+2. **Offer-Acceptance Metrics**
+
+3. **Retention-Employee Turnover Metrics**
+
+4. **Developed Capabilities-Job Requirements (what you’re actually buying)**
+
+5. **Counter-Evidence**
+
+
+## **Recruiting-Applicant Metrics**
+
+\
+Use these items for each classification family (e.g., City Manager, Finance, Fire, Police, Utilities, IT, Planning).
+
+- Do we have postings with **near-zero applicants**?  How many? Since when?  What positions?
+
+- Do we have postings with **near-zero *qualified* applicants**?  How many? Since when?  What positions?
+
+- Are time-to-fill and re-post rates increasing?  How many? Since when?  What positions? 
+
+- Are candidate pools shrinking in specific roles, shifts, certifications, or locations?  How many?  Since when? What pools?
+
+
+
+
+## **Offer-Acceptance Metrics**
+
+\
+
+- What % of **first offers are rejected**?  Since when?  What positions?
+
+- **Upon hiring** what are the top stated reasons (pay, schedule, location, culture, benefits, job scope)?
+
+- **Upon exit** what are the top stated reasons (pay, schedule, location, culture, benefits, job scope)?  Since when?  What positions?
+
+- Are counteroffers increasing?  Since when?  What positions?
+
+- Are we losing finalists to specific employers?  Since when?  What positions?
+
+
+
+## **Retention-Employee Turnover Metrics**
+
+\
 
 - What is the **voluntary turnover rate** by department and job family?
+
 - What % of separations are retirement vs voluntary vs involuntary?
+
+- What is the average tenure of the workforce over the last 5 - 10 years?
+
+- What is the average age of employees over last 5 - 10 years?
+
 - Where do voluntary exits go (other cities vs private vs other public sector)?
+
 - Are exits concentrated in key roles, supervisors, or shifts?
 
-## D. Capability and job design
 
-- What capabilities are required for success (certifications, experience, judgment, leadership, specialized skills)?
-- Are we compensating for *scarce* capabilities or simply matching peers?
+
+## **Developed Capabilities-Job Requirements (what you’re actually buying)**
+
+\
+- Do applicants have the capabilities required for the job classification (certifications, experience, judgment, leadership, specialized skills)?
+
+- Are we seeking *scarce* capabilities in some positions?  Which ones?  Since when?
+
 - Are job descriptions aligned with actual work scope?
-- Are we using pay to solve a non-pay problem (culture, workload, tools, supervision)?
 
-## Data capture template (flextable)
+- If these criterian are known you can determine when you are using pay to solve a non-pay problem (culture, workload, tools, supervision)?
+
+
+## **Counter-Evidence**
+
+\
+
+**Counter-evidence** is information, data, or testimony that contradicts, refutes, or opposes previously presented evidence.
+
+1.  For instance, would it interest you to know that, according to the U.S. Census nearly 25% of commuters into Schertz travel 50 miles or more daily?  That does not sound like an employer with wages below the LOCAL MARKET.
+
+2.  Would it interest you to know that the Schertz job posting for City Manager in 2022 received about 70 applicants?  That does not sound like an employer with wages below the LOCAL MARKET.
+
+3.  Would it interest you to know how many employees transfer INTO Schertz from other municipalities?  If you only measure the outflows (attrition rate) without the inflows you cannot know the net effect of your existing compensation structure.
+
+\
+
+## Data Capture Template
+
+\
 
 Below is a suggested **single-page evidence capture** table that can be filled per job family or per critical role.
 
@@ -67,39 +384,62 @@ Below is a suggested **single-page evidence capture** table that can be filled p
 #| label: evidence-checklist-table
 #| results: asis
 
-checklist_df <- base::data.frame(
-  `Evidence Area` = c(
-    "Recruiting pipeline",
-    "Offer/accept",
-    "Retention/exits",
-    "Capability/job design",
+checklist_df <- base::data.frame(check.names = FALSE,
+  `Evidence` = c(
+    "Recruiting-Applicant Metrics",
+    "Offer-Acceptance Metrics",
+    "Retention and Employee Turnover Metrics",
+    "Developed Capabilities and Job Requirements (what you're actually buying)",
     "Conclusion"
   ),
-  `Key measures to report (by job family)` = c(
+  `Key Measures by Job Family` = c(
     "Applicants per posting; qualified applicants per posting; time-to-fill; repost rate; sourcing mix",
     "Offer rate; acceptance rate; first-offer rejection %; counteroffer %; stated rejection reasons",
     "Voluntary turnover; exit destination mix; early-tenure attrition; hot-spot roles/shifts",
     "Required capabilities; certification/experience constraints; job scope changes; supervisory span",
     "State whether evidence indicates labor scarcity (Y/N) and which levers are justified"
   ),
-  `Minimum acceptable evidence` = c(
-    "≥ 12 months trend + current YTD; breakout by role/department",
-    "≥ last 50 offers or last 12 months (whichever larger); coded reasons",
-    "≥ 24 months trend; exit destinations for voluntary exits",
+  `How Much Data Do I Need?` = c(
+    "≥ 6-12 year trend + current YTD; breakout by role/department",
+    "≥ last 50 offers or last 6-12 years (whichever larger); coded reasons",
+    "≥ 6-12 year trend; exit destinations for voluntary exits",
     "Current job descriptions + scope variance notes; training/credential requirements",
     "Written summary tied to evidence; identify gaps + next data to collect"
-  ),
-  `Notes / links to exhibits` = c("", "", "", "", "")
+  )
 )
 
-ft <- flextable::flextable(checklist_df)
-ft <- flextable::autofit(ft)
+
+ft <- flextable::flextable(checklist_df) |>
+  flextable::add_header_lines(
+    values = "Evidence Checklist: What to Collect Before Commissioning Any External Study"
+  ) |>
+  flextable::color(i = 1, part = "header", color = "steelblue") |>
+  flextable::italic(i = 1, part = "header") |>
+  flextable::align(i = 1, part = "header", align = "left") |>
+  flextable::fontsize(i = 1, part = "header", size = 13) |>
+  flextable::bg(i = 1, part = "header", bg = "white") |>
+  flextable::bg(i = 2, part = "header", bg = "palegreen") |>
+  flextable::fontsize(part = "body", size = 10) |>
+  flextable::fontsize(i = 2, part = "header", size = 10) |>
+  flextable::valign(valign = "top", part = "body") |>
+  ftExtra::colformat_md() |>
+  flextable::set_table_properties(layout = "autofit")
+
 ft
 ```
 
-## Decision rule (non-automatic)
+
+
+## Decisions
+
+\
 
 This checklist is **not** a mechanical rule. It is an evidence gate:
 
-- If **local labor-market evidence** shows no stress, then “peer pay is higher” is not sufficient.
-- If evidence shows stress, pay may be one lever—but the decision should specify *which roles* and *which market mechanism* is being addressed.
+- If **local labor-market evidence** shows little stress, then the argument “peer pay is higher” is completely inappropriate.
+
+- If **local labor-market evidence** shows little stress, any decision should specify *which roles* and *which market mechanism* is being addressed. 
+
+- Compensation measures should be done with a lazer beam, not a shotgun.  You might raise salaries on **all classifications** when **only six need adjustment**.  
+
+There could not be a less responsible decision-making process.
